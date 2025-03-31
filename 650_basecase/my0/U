@@ -1,0 +1,42 @@
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (-5 0 0);
+
+boundaryField
+{
+  #includeEtc "caseDicts/setConstraintTypes"
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            outletPhaseMeanVelocity;
+        alpha           alpha.water;
+        Umean           5;
+        value           $internalField;
+    }
+
+    atmosphere
+    {
+        type            pressureInletOutletVelocity;
+        tangentialVelocity $internalField;
+        value           uniform (0 0 0);
+    }
+
+    "coque|quille|foils"
+    {
+        type            noSlip;
+    }
+}

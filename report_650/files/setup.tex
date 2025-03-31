@@ -1,0 +1,97 @@
+% The geometry comes from Grabcad https://grabcad.com/library/wingsurf-hydrofoil-1 
+% The following changes have been applied so that it has a span around 1 m and is aligned with $+x$:
+
+% \begin{itemize}
+%     \item \verb|surfaceTransformPoints -scale 0.03 |
+%     \item \verb|surfaceTransformPoints -rotate '((1 0 0) (0 1 0))'|
+%     \item \verb|surfaceTransformPoints -translate '(0 0 0.5)'|
+% \end{itemize}
+
+% In order to determine the dynamicMeshDict stuff, \verb|surfaceInertia -density 800 -referencePoint '(0 0 1)' ....stl|
+
+\subsection{Geometry}
+
+    The 6.50 geometry comes from onshape, export into STL in meters 
+    The following changes have been applied:
+
+    \begin{itemize}
+        % \item \verb|surfaceTransformPoints -scale 0.03 |
+        \item \verb|surfaceTransformPoints -translate '(0 0 0.6)'|
+        \item \verb|surfaceTransformPoints -rotate '((0 0 1) (0 -0.3090169943749474 0.9510565162951535))'|
+    \end{itemize}
+
+    In order to determine the dynamicMeshDict stuff, \verb|surfaceInertia -density 100 -referencePoint '(0 0 1)' ....stl|
+
+
+    Attention, faut refaire le surfaceInertia à chaque changement de roll angle 
+
+\subsection{Mesh}
+    \begin{itemize}
+        \item SHM
+        \item refbox around the water interface 
+        \item refbox in the neigborhood of the boat (distance) 
+    \end{itemize}
+
+    \begin{table}[ht!]
+        \centering\begin{tabular}{c|p{4cm}|c|c}
+            Mesh & definition & \#cells & cost 15 ftt (foils - no foils)\\
+            \hline
+            \hline
+            M0 (100k) & foils 5 6 7 \newline coque 3 4 \newline water 3 4 \newline quille 6 6 & 1.5e5 & $\approx$ 5h - ??\\
+            M1 (200k)& foils 6 7 8 \newline coque 3 4 \newline water 3 4 \newline quille 6 6 & 2e5 & $\approx$ 14h - 2h \\
+            M2 (300k)& foils 7 8 8 \newline coque 4 5 \newline water 3 4 \newline quille 7 7 & 3e5 & $\approx$ 18h - \\
+        \end{tabular}
+        \caption{Mesh sizes and cost.}
+        \label{tab:meshes}
+    \end{table}
+
+    % \begin{table}[ht!]
+    %     \centering\begin{tabular}{c|p{4cm}|c|c}
+    %         Mesh & definition & \#cells & cost 10 ftt\\
+    %         \hline
+    %         \hline
+    %         M0 & foils 6 6 \newline coque 3 4 \newline water 3 3 \newline quille 5 5 & 1.1e5 & \textasciitilde \\
+    %         M1 & foils 7 7 \newline coque 4 5 \newline water 3 4 \newline quille 6 6 & 2.1e5 & \textasciitilde 60 min\\
+    %         M2 & foils 7 7 \newline coque 5 6 \newline water 3 4 \newline quille 6 6 & 1e7 & \textasciitilde 90 min\\
+    %     \end{tabular}
+    %     \caption{Mesh sizes and cost.}
+    %     \label{tab:meshes}
+    % \end{table}
+
+
+
+
+% \subsection{Numerical parameters}
+
+%     \begin{itemize}
+%         \item interFoam, multiphase 
+%         \item pimple loop 
+%         \item second order schemes 
+%         \item "pseudo steady state" 6DOF : large relaxation and damping, but necessarily transient 
+%     \end{itemize}
+
+% \subsection{Postprocessing}
+%     \begin{itemize}
+%         \item Surfaces 
+%         \item Forces 
+%         \item DES LOGS DE 6DOF À METTRE EN PLACE  
+%     \end{itemize}
+
+
+    
+% surfaceTransformPoints -rotate '((0 1 0) (1 0 0))' coque.stl coque_x.stl
+% surfaceTransformPoints -rotate '((0 1 0) (1 0 0))' foils.stl foils_x.stl
+% surfaceTransformPoints -rotate '((0 1 0) (1 0 0))' quille.stl quille_x.stl
+
+% surfaceTransformPoints -rotate '((0 0 1) (0 -0.25881904510252074 0.9659258262890683))' coque_x.stl coque_x_gite.stl
+% surfaceTransformPoints -rotate '((0 0 1) (0 -0.25881904510252074 0.9659258262890683))' foils_x.stl foils_x_gite.stl
+% surfaceTransformPoints -rotate '((0 0 1) (0 -0.25881904510252074 0.9659258262890683))' quille_x.stl quille_x_gite.stl
+
+
+% surfaceTransformPoints -rotate '((0 1 0) (1 0 0))' foils4.stl foils_x.stl
+% surfaceTransformPoints -rotate '((0 1 0) (1 0 0))' refBox_LE.stl refBox_LE_x.stl
+% surfaceTransformPoints -rotate '((0 1 0) (1 0 0))' refBox_TE.stl refBox_TE_x.stl
+
+% surfaceTransformPoints -rotate '((0 0 1) (0 -0.25881904510252074 0.9659258262890683))' foils_x.stl foils_x_gite.stl
+% surfaceTransformPoints -rotate '((0 0 1) (0 -0.25881904510252074 0.9659258262890683))' refBox_LE_x.stl refBox_LE_x_gite.stl
+% surfaceTransformPoints -rotate '((0 0 1) (0 -0.25881904510252074 0.9659258262890683))' refBox_TE_x.stl refBox_TE_x_gite.stl

@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1806                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+surfaces
+{
+    type            surfaces;
+    libs            ("libsampling.so");
+    writeControl    runTime;
+	writeInterval 	0.05; // 0.0005 
+
+    surfaceFormat   ensight ; //vtk;
+    fields          (pMean U alpha.water);
+
+    interpolationScheme cellPoint;
+
+    surfaces
+    (
+        yNormal0
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                point   (0 0 0);
+                normal  (0 1 0);
+            }
+            interpolate     true;
+        }
+        yNormal0_5
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                point   (0 -0.5 0);
+                normal  (0 1 0);
+            }
+            interpolate     true;
+        }
+        // yNormal1
+        // {
+        //     type            cuttingPlane;
+        //     planeType       pointAndNormal;
+        //     pointAndNormalDict
+        //     {
+        //         point   (0 -1 0);
+        //         normal  (0 1 0);
+        //     }
+        //     interpolate     true;
+        // }
+        // yNormal1_5
+        // {
+        //     type            cuttingPlane;
+        //     planeType       pointAndNormal;
+        //     pointAndNormalDict
+        //     {
+        //         point   (0 -1.5 0);
+        //         normal  (0 1 0);
+        //     }
+        //     interpolate     true;
+        // }
+        //xNormal1
+        //{
+        //    type            cuttingPlane;
+        //    planeType       pointAndNormal;
+        //    pointAndNormalDict
+        //    {
+        //        point   (-1 0 0);
+        //        normal  (1 0 0);
+        //    }
+        //    interpolate     true;
+        //}
+        //xNormal3
+        //{
+        //    type            cuttingPlane;
+        //    planeType       pointAndNormal;
+        //    pointAndNormalDict
+        //    {
+        //        point   (-3 0 0);
+        //        normal  (1 0 0);
+        //    }
+        //    interpolate     true;
+        //}
+        //xNormal6
+        //{
+        //    type            cuttingPlane;
+        //    planeType       pointAndNormal;
+        //    pointAndNormalDict
+        //    {
+        //        point   (-6 0 0);
+        //        normal  (1 0 0);
+        //    }
+        //    interpolate     true;
+        //}
+        interface 
+        {
+            type        isoSurfaceCell;
+            isoField    alpha.water;
+            isoValue    0.5;
+            average     true;
+            triangulate true;
+
+        }
+        foils 
+        {
+            type        patch;
+            patches     ("foils");
+            interpolate true;
+        }
+        boat 
+        {
+            type        patch;
+            patches     ("coque|quille|foils");
+            interpolate true;
+        }
+    );
+}
+
+
+// ************************************************************************* //

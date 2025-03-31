@@ -1,0 +1,124 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh   dynamicMotionSolverFvMesh;
+
+motionSolverLibs (rigidBodyMeshMotion);
+
+motionSolver    rigidBodyMotion;
+
+report          on;
+
+solver
+{
+    type Newmark;
+}
+
+accelerationRelaxation 0.5;
+accelerationDamping 0.5;
+
+
+bodies
+{
+    boat
+    {
+        type            rigidBody;
+        parent          root;
+        // 0deg 
+        centreOfMass    (-4 0 0.435002173463);
+        mass            1400; //computed by surfaceInertia -density 100;
+        inertia         (1107.66566146 -0.000171545216769 -71.2343466184 3986.48302166 -0.000110630081179 4768.37345481);
+        transform       (1 0 0 0 1 0 0 0 1) (0 0 0);
+        
+        // 12.5deg 
+        // centreOfMass    (-3.33831201964 -0.13442410794 0.413711203204);
+        // mass            1400; //computed by surfaceInertia -density 400;
+        // inertia         (6565.58556651 -2559.92032195 -11820.0751616 84033.0300978 -1384.21516932 84641.6042553);
+
+
+        transform       (1 0 0 0 1 0 0 0 1) (0 0 0);
+
+        joint
+        {
+            type    composite;
+            joints
+            (
+                {
+                    type Pz;
+                }
+                //{
+                //    type Rx;
+                //}
+                //{
+                //    type Ry;
+                //}
+            );
+        }
+
+        patches         (coque quille foils);
+        innerDistance   2;
+        outerDistance   8;
+    }
+}
+
+
+constraints
+{
+    Pz
+    {
+        sixDoFRigidBodyMotionConstraint    line;
+        direction (0 0 1);
+    }
+}
+
+restraints
+{
+    translationDamper
+    {
+        type linearDamper;
+        body boat;
+        //coeff 150000;
+        coeff 3000000;
+    }
+
+    rotationDamperX
+    {
+        type sphericalAngularDamper;
+        body boat;
+        axis (1 0 0);
+        coeff 500; // À ajuster en fonction de la simulation
+    }
+
+    rotationDamperY
+    {
+        type sphericalAngularDamper;
+        body boat;
+        axis (0 1 0);
+        coeff 500; // À ajuster en fonction de la simulation
+    }
+
+	//windForce
+ 	//{
+    //	//sixDoFRigidBodyMotionRestraint      constantForce;
+    //	location 			(-4.4 0.0 3.1);
+    //	force 				(0 0 0);     //Force vector in N.
+ 	//	body 				boat;
+	//	type 				externalForce;
+	//}  
+}
+
+
+// ************************************************************************* //

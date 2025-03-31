@@ -1,0 +1,166 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         5;
+
+deltaT          0.0001;
+
+writeControl    timeStep;
+// writeControl    adjustableRunTime;
+// writeControl    runTime;
+
+writeInterval   10;
+
+purgeWrite      5;
+
+writeFormat     binary;
+// writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           20;
+//maxCo           3;
+
+maxAlphaCo      10;
+
+maxDeltaT       0.05;
+
+
+functions
+{
+    #include "surfaces"
+    forces
+    {
+        type            forces;
+        libs            (forces);
+        patches         (coque quille foils);
+        rhoInf          998.8;
+        log             on;
+        writeControl    timeStep;
+        writeInterval   1;
+        CofR            (2.929541 0 0.2);
+    }
+    forces_foils
+    {
+        type            forces;
+        libs            (forces);
+        patches         (foils);
+        rhoInf          998.8;
+        log             on;
+        writeControl    timeStep;
+        writeInterval   1;
+        CofR            (2.929541 0 0.2);
+    }
+    fieldAverage
+    {
+        type                fieldAverage;
+        libs                ("libfieldFunctionObjects.so");
+        writeControl        writeTime;
+        restartOnRestart    false;
+        enabled             false;
+        fields
+        (
+            U
+            {
+                mean        on;
+                prime2Mean  on ;
+                base        time;
+            }
+
+            p
+            {
+                mean        on;
+                prime2Mean  on ;
+                base        time;
+            }
+
+        );
+    }
+    residuals
+    {
+        type            solverInfo;
+        libs            ("libutilityFunctionObjects.so");
+
+        writeControl    timeStep;
+        writeInterval   1;
+
+        fields          (p U); // T rho);
+    }
+
+    // forceCoeffs1
+    // {
+    //     // Mandatory entries
+    //     type            forceCoeffs;
+    //     libs            ("libforces.so");
+    //     patches         (<list of patch names>);
+
+    //     writeFields     yes;
+
+    //     // Centre of rotation for moment calculations
+    //     CofR            (0 0 0);
+
+    //     liftDir         (0 0 1);
+    //     dragDir         (-1 0 0);
+    //     pitchAxis       (0 1 0);
+
+    //     // Freestream velocity magnitude [m/s]
+    //     magUInf         7;
+
+    //     // Reference length [m]
+    //     lRef            1;
+
+    //     // Reference area [m2]
+    //     Aref            1.75;
+    // }
+
+    maxDisplacement
+    {
+        type                fieldMinMax;
+        libs                ("libfieldFunctionObjects.so");
+        fields              (p U CofG pointDisplacement);
+        resultType          max;
+    }
+
+    // sixDofLog 
+    // {
+    //     type    sixDofMotionState;
+    //     libs                ("libSixDoFRigidBodyMotion.so");
+    //     writeControl        timeStep;
+    //     writeInterval       1;    
+    // }
+}
+
+
+// ************************************************************************* //
