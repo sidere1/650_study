@@ -9,7 +9,8 @@ import time
 # physical data 
 sail_angle = 70 # in degrees. I guess around 10 au près, 60 au portant ? 
 u_wind = np.array([3, 6])# 1 noeud = 0.514 m/s, 15 noeud~7m/s
-u_wind = np.array([-10, 0])# 1 noeud = 0.514 m/s, 15 noeud~7m/s
+u_wind = np.array([-10, 0])# pure upwind
+u_wind = np.array([-1.736481776669303, 9.84807753012208])# best upwind
 boat_length=6.5
 
 # parameters 
@@ -42,12 +43,12 @@ for i_iter in np.arange(max_iter):
         ftt = 1
     a = int(np.ceil(M0_ftt_length*ftt))
     b = int(np.ceil((M1_ftt_length+i_iter/2)*ftt))
+    u_app = compute_app_speed(np.array([u_boat[i_iter], 0]), u_wind)
     # print(f"endtime = {a} and {b}")
     edit_controlDict(controlDict_0_file, endTime=a)
     edit_controlDict(controlDict_1_file, endTime=b)
     lauch_computation(opf_script)
     D = compute_average_drag(drag_file, skip=a, plot_res=False)
-    u_app = compute_app_speed(u_boat[i_iter], u_wind)
     wind_force = compute_wind_force(u_app, sail_angle, verbose=True)
     T = -wind_force[0]
     print(f'---> u_app = {u_app} ; ')

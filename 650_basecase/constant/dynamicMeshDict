@@ -27,8 +27,8 @@ solver
     type Newmark;
 }
 
-accelerationRelaxation 0.5;
-accelerationDamping 0.5;
+accelerationRelaxation 0.1;
+accelerationDamping 0.1;
 
 
 bodies

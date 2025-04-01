@@ -1,3 +1,4 @@
+%!TEX root = ../main.tex
 \subsection{Concept}
 
     The unknown of the problem, the boat velocity $\mathbf{u}_b$, is considered in the computation as a boundary condition. In order to determine its value, an iterative process is proposed. 
@@ -61,8 +62,95 @@
 
 \clearpage
 \subsection{Results}
+    Fig. \ref{fig:iterative_process} shows the convergence of the inlet velocity BC $\mathbf{u_b} $with a initial condition of 5 m/s and a wind of $\mathbf{u_w}\langle -10, 0\rangle$ m/s (15 knots, pure downwind), without foils, on mesh M1 (M0 and M1 without foils are the same). The relaxation factor $r_n$ varies linearly from 0.2 to 0.8. The process converged in 12h (7 iterations). 
+
     \begin{figure}[ht!]
         \centering
-        \caption{Iterative determination of the velocity inlet BC for a wind speed of $\langle -10, 10\rangle$ m/s (15  downwind).}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                ylabel={z (m)},
+                xmin=0, xmax=10,
+                ymin=0, ymax=6,
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.7\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{1})] {curves/iterativeProcess/u10_pure_upwind};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Iterative determination of the velocity inlet BC for a wind speed of $\langle -10, 0\rangle$ m/s (15 knots, pure downwind).}
         \label{fig:iterative_process}
+    \end{figure}
+
+    The forces for the last iteration are the following : 
+    \begin{figure}[ht!]
+        \centering
+        \begin{subfigure}{0.48\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    ylabel={Lift (N)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/convergence/force_after_iterative};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Lift evolution.}
+            \label{fig:lift_evolution}
+        \end{subfigure}
+        \begin{subfigure}{0.48\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    ylabel={Drag (N)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/convergence/force_after_iterative};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Drag evolution.}
+            \label{fig:drag_evolution}
+        \end{subfigure}
+        
+        \begin{subfigure}{0.48\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    ylabel={z (m)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/rigidBodyMotionDisplacement/tq_after_iterative};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Vertical displacement evolution.}
+            \label{fig:drag_evolution}
+        \end{subfigure}
+        
+        % \begin{tikzpicture}
+        %     \begin{axis}[
+        %         hide axis,
+        %         xmin=0, xmax=1, ymin=0, ymax=1,
+        %         legend columns=-1, % -1 pour aligner horizontalement, 1 pour aligner verticalement
+        %         legend entries={M1, M2, M1 no foils},
+        %         width=0.25\textwidth
+        %         ]
+        %         \addlegendimage{ultra thick, mark=*, \firstcolor}
+        %         \addlegendimage{ultra thick, mark=*, \secondcolor}
+        %         \addlegendimage{ultra thick, mark=*, \thirdcolor}
+        %     \end{axis}
+        % \end{tikzpicture}
+
+        \caption{Convergence of the metrics with the iterations.}
+        \label{fig:meshConvergence}
     \end{figure}

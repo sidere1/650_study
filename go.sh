@@ -84,8 +84,8 @@ fi
 
 mkdir postProcessing/rigidBodyMotionDisplacement/
 cat $logfile | grep "Centre of rotation" | cut -d " " -f 8-10 | sed 's/(//g' | sed 's/)//g' >> postProcessing/rigidBodyMotionDisplacement/q
-cat $logfile | grep "Time = " | grep -v Execution | cut -d " " -f 3 | tail -n +5 > postProcessing/rigidBodyMotionDisplacement/t
+cat $logfile | grep "Time = " | grep -v Execution | cut -d " " -f 3 | tail -n +5 > postProcessing/rigidBodyMotionDisplacement/t_temp
+cat postProcessing/rigidBodyMotionDisplacement/t_temp | tail -n `cat postProcessing/rigidBodyMotionDisplacement/q | wc -l` > postProcessing/rigidBodyMotionDisplacement/t
 paste postProcessing/rigidBodyMotionDisplacement/t postProcessing/rigidBodyMotionDisplacement/q > postProcessing/rigidBodyMotionDisplacement/tq
-
-
+cat $logfile | grep max | tail >> ../maxes
 

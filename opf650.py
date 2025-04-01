@@ -47,8 +47,10 @@ def lauch_computation(opf_script):
     return True
 
 
-def compute_app_speed(u_boat, u_wind):
+def compute_app_speed(u_boat, u_wind, verbose=True):
     u_app = u_wind-u_boat
+    if verbose:
+        print(f"Velocity triangle, u_a={u_app}, u_w={u_wind}, u_b={u_boat}")
     return u_app
 
 
@@ -140,7 +142,7 @@ def remove_alternate_lines(file_path):
     # Réécrire le fichier avec les lignes filtrées
     with open(file_path, 'w', encoding='utf-8') as file:
         file.writelines(filtered_lines)
-        
+
 def undersample_file(file_path, N=200):
     # Lire toutes les lignes du fichier
     with open(file_path, 'r', encoding='utf-8') as file:
