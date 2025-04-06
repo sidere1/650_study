@@ -9,7 +9,7 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (-5 0 0);
+internalField   uniform (-8 0 0);
 
 boundaryField
 {
@@ -24,7 +24,7 @@ boundaryField
     {
         type            outletPhaseMeanVelocity;
         alpha           alpha.water;
-        Umean           5;
+        Umean           8;
         value           $internalField;
     }
 

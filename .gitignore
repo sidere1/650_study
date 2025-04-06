@@ -82,6 +82,7 @@ Darwin*
 *.cb
 *.cb2
 .*.lb
+*.pdf
 
 ## Intermediate documents:
 *.dvi

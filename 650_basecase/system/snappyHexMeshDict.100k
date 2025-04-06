@@ -64,16 +64,16 @@ geometry
             type wall;
         }
 	}
-    quille_x_gite.stl
-    {
-        type triSurfaceMesh;
-        name quille;
+    //quille_x_gite.stl
+    //{
+    //    type triSurfaceMesh;
+    //    name quille;
 
-        patchInfo
-        {
-            type wall;
-        }
-    }
+    //    patchInfo
+    //    {
+    //        type wall;
+    //    }
+    //}
     //foils_x_gite.stl
     //{
     //    type triSurfaceMesh;
@@ -113,8 +113,8 @@ geometry
     waterInterfaceWake
     {
         type        searchableBox;
-        min         (-10 -5 -0.05);
-        max         (6 5 0.2);
+        min         (-8 -4 -0.05);
+        max         (5 4 0.2);
     }
 
 }
@@ -163,10 +163,10 @@ castellatedMeshControls
         //    file "foils_x_gite.extendedFeatureEdgeMesh";
         //    level $ref_foils_1;
         //}
-        {
-            file "quille_x_gite.extendedFeatureEdgeMesh";
-            level $ref_quille_1;
-        }
+        //{
+        //    file "quille_x_gite.extendedFeatureEdgeMesh";
+        //    level $ref_quille_1;
+        //}
         {
             file "coque_x_gite.extendedFeatureEdgeMesh";
             level $ref_coque_1;
@@ -191,11 +191,11 @@ castellatedMeshControls
             // Surface-wise min and max refinement level
             level ($ref_coque_0 $ref_coque_0);
         }
-        quille
-        {
-            // Surface-wise min and max refinement level
-            level ($ref_quille_0 $ref_quille_0);
-        }
+        //quille
+        //{
+        //    // Surface-wise min and max refinement level
+        //    level ($ref_quille_0 $ref_quille_0);
+        //}
         //foils
         //{
         //    // Surface-wise min and max refinement level

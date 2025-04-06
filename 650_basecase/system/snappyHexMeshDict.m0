@@ -66,46 +66,46 @@ geometry
             type wall;
         }
 	}
-    quille_x_gite.stl
-    {
-        type triSurfaceMesh;
-        name quille;
+    //quille_x_gite.stl
+    //{
+    //    type triSurfaceMesh;
+    //    name quille;
 
-        patchInfo
-        {
-            type wall;
-        }
-    }
-    foils_x_gite.stl
-    {
-        type triSurfaceMesh;
-        name foils;
+    //    patchInfo
+    //    {
+    //        type wall;
+    //    }
+    //}
+    //foils_x_gite.stl
+    //{
+    //    type triSurfaceMesh;
+    //    name foils;
 
-        patchInfo
-        {
-            type wall;
-        }
-    }
-    refBox_TE_x_gite.stl
-    {
-        type triSurfaceMesh;
-        name refBox_TE;
+    //    patchInfo
+    //    {
+    //        type wall;
+    //    }
+    //}
+    //refBox_TE_x_gite.stl
+    //{
+    //    type triSurfaceMesh;
+    //    name refBox_TE;
 
-        patchInfo
-        {
-            type patch;
-        }
-    }
-    refBox_LE_x_gite.stl
-    {
-        type triSurfaceMesh;
-        name refBox_LE;
+    //    patchInfo
+    //    {
+    //        type patch;
+    //    }
+    //}
+    //refBox_LE_x_gite.stl
+    //{
+    //    type triSurfaceMesh;
+    //    name refBox_LE;
 
-        patchInfo
-        {
-            type patch;
-        }
-    }
+    //    patchInfo
+    //    {
+    //        type patch;
+    //    }
+    //}
     waterInterface 
     {
         type        searchableBox;
@@ -161,14 +161,14 @@ castellatedMeshControls
     // This is a featureEdgeMesh, read from constant/triSurface for now.
     features
     (
-        {
-            file "foils_x_gite.extendedFeatureEdgeMesh";
-            level $ref_foils_1;
-        }
-        {
-            file "quille_x_gite.extendedFeatureEdgeMesh";
-            level $ref_quille_1;
-        }
+        //{
+        //    file "foils_x_gite.extendedFeatureEdgeMesh";
+        //    level $ref_foils_1;
+        //}
+        //{
+        //    file "quille_x_gite.extendedFeatureEdgeMesh";
+        //    level $ref_quille_1;
+        //}
         {
             file "coque_x_gite.extendedFeatureEdgeMesh";
             level $ref_coque_1;
@@ -193,16 +193,16 @@ castellatedMeshControls
             // Surface-wise min and max refinement level
             level ($ref_coque_0 $ref_coque_0);
         }
-        quille
-        {
-            // Surface-wise min and max refinement level
-            level ($ref_quille_0 $ref_quille_0);
-        }
-        foils
-        {
-            // Surface-wise min and max refinement level
-            level ($ref_foils_0 $ref_foils_0);
-        }
+        //quille
+        //{
+        //    // Surface-wise min and max refinement level
+        //    level ($ref_quille_0 $ref_quille_0);
+        //}
+        //foils
+        //{
+        //    // Surface-wise min and max refinement level
+        //    level ($ref_foils_0 $ref_foils_0);
+        //}
     }
 
     resolveFeatureAngle 45;
@@ -223,11 +223,11 @@ castellatedMeshControls
 
     refinementRegions
     {
-        foils 
-        {
-            mode distance;
-            levels ((0.02 $ref_foils_0) (0.05 $ref_around_foils));
-        };
+        //foils 
+        //{
+        //    mode distance;
+        //    levels ((0.02 $ref_foils_0) (0.05 $ref_around_foils));
+        //};
         coque
         {
             mode distance;
@@ -243,16 +243,16 @@ castellatedMeshControls
             mode inside;
             levels (($ref_water_1 $ref_water_1));
         }
-       	refBox_TE 
-        {
-            mode inside;
-            levels (($ref_foils_2 $ref_foils_2));
-        }
-       	refBox_LE 
-        {
-            mode inside;
-            levels (($ref_foils_2 $ref_foils_2));
-        }
+       	//refBox_TE 
+        //{
+        //    mode inside;
+        //    levels (($ref_foils_2 $ref_foils_2));
+        //}
+       	//refBox_LE 
+        //{
+        //    mode inside;
+        //    levels (($ref_foils_2 $ref_foils_2));
+        //}
     }
    
 

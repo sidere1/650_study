@@ -90,8 +90,9 @@ restraints
     {
         type linearDamper;
         body boat;
+        coeff 5000;
         //coeff 150000;
-        coeff 3000000;
+        //coeff 3000000;
     }
 
     rotationDamperX

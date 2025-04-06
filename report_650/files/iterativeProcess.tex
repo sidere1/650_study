@@ -1,6 +1,6 @@
 %!TEX root = ../main.tex
 \subsection{Concept}
-
+    \label{section:iterative_process}
     The unknown of the problem, the boat velocity $\mathbf{u}_b$, is considered in the computation as a boundary condition. In order to determine its value, an iterative process is proposed. 
     The rolling/pitch movement is neglected for now, a "gite" of 15° is considered and only the vertical displacement is allowed in the rigid body motion. 
 
@@ -60,26 +60,72 @@
         \label{fig:speedtriangle}
     \end{figure}
 
+\subsection{Initial velocity }
+    In order to accelerate the computation. The initial velocity BC $\mathbf{u}_b^0$ may be guessed with the same iterative algorithm as in \ref{section:iterative_process}. The only difference lies in the determination of the drag: instead of an accurate but costly CFD computed drag, we estimate it with 
+    \begin{eqnarray}
+        D'+D'' = \frac{1}{2}\rho u^2 \left(S' C_d' +S'' C_d''\right), \\ 
+        \label{eqn:drag_estimation}
+    \end{eqnarray}
+    with $S'= 0.9$ the projected wet surface in an x-aligned plane, and $S''= 8.64 $ the wet surface. This decomposition allows us to take into account both the drag due to pressure distribution, and the one due to friction. 
+
+    The determination of $C_d'$ and $C_d''$ is made numerically with OpenFOAM results. 
+
+    \begin{table}[ht!]
+        \centering
+        \begin{tabular}{p{4cm}|c|c|c|c|c}
+            Run & Velocity & $D'=$ & $D''$ & $C_d'=2*/\rho u^2 S'$ & $C_d''=2*/\rho u^2 S'$ \\
+            \hline  
+            underdamped 150 & 6.8 & 1700 & 600 & 0.08941 & 0.00328 \\
+            critical 100 & 10 & 2700 & 900 & 0.142 & 0.00493 \\
+        \end{tabular}
+        \caption{Numerical estimation of the drag coefficients on the hull}
+        \label{tab:dragCoeffHull}
+    \end{table}
+
+
 \clearpage
 \subsection{Results}
-    Fig. \ref{fig:iterative_process} shows the convergence of the inlet velocity BC $\mathbf{u_b} $with a initial condition of 5 m/s and a wind of $\mathbf{u_w}\langle -10, 0\rangle$ m/s (15 knots, pure downwind), without foils, on mesh M1 (M0 and M1 without foils are the same). The relaxation factor $r_n$ varies linearly from 0.2 to 0.8. The process converged in 12h (7 iterations). 
+    Fig. \ref{fig:iterative_process} shows the convergence of the inlet velocity BC $\mathbf{u_b}$ with an initial condition $\mathbf{u_b}^0 = 5$ m/s and a wind $\mathbf{u_w} = \langle 1.73, 9.85\rangle$ m/s (15 knots, 80 deg), without foils or keel, on mesh M1 (M0 and M1 without foils are the same). The relaxation factor $r_n$ varies linearly from 0.2 to 0.8. The process converged in 3h (4 iterations). 
 
     \begin{figure}[ht!]
         \centering
-        \begin{tikzpicture}
-            \begin{axis}[
-                xlabel={time (s)},
-                ylabel={z (m)},
-                xmin=0, xmax=10,
-                ymin=0, ymax=6,
-                ymajorgrids=true,xmajorgrids=true,
-                legend pos=south east,
-                width=0.7\textwidth,
-                axis background/.style={fill=\backgroundcolor}
-                ]
-                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{1})] {curves/iterativeProcess/u10_pure_upwind};
-            \end{axis}
-        \end{tikzpicture}
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={Iteration},
+                    ylabel={$\mathbf{u}_b$ (m/s)},
+                    % xmin=0, xmax=10,
+                    % ymin=0, ymax=6,
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{1})] {curves/iterativeProcess/iterative_process_result_u1.7_9.8};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Velocity}
+        \end{subfigure}
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={Iteration},
+                    ylabel={Forces (N)},
+                    % xmin=0, xmax=10,
+                    % ymin=0, ymax=6,
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{2})] {curves/iterativeProcess/iterative_process_result_u1.7_9.8};
+                    \addplot +[mark=None, style=ultra thick, color=\secondcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{3})] {curves/iterativeProcess/iterative_process_result_u1.7_9.8};
+                    \legend{$T$, $-D$}
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Forces}
+        \end{subfigure}
+            
         \caption{Iterative determination of the velocity inlet BC for a wind speed of $\langle -10, 0\rangle$ m/s (15 knots, pure downwind).}
         \label{fig:iterative_process}
     \end{figure}
@@ -87,70 +133,366 @@
     The forces for the last iteration are the following : 
     \begin{figure}[ht!]
         \centering
-        \begin{subfigure}{0.48\textwidth}
+        \begin{subfigure}{0.32\textwidth}
             \begin{tikzpicture}
                 \begin{axis}[
                     xlabel={time (s)},
-                    ylabel={Lift (N)},
+                    % ylabel={Lift (N)},
                     ymajorgrids=true,xmajorgrids=true,
                     legend pos=south east,
                     width=0.98\textwidth,
                     axis background/.style={fill=\backgroundcolor}
                     ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/convergence/force_after_iterative};
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/iterativeProcess/forces_u1.7_9.8};
                 \end{axis}
             \end{tikzpicture}
-            \caption{Lift evolution.}
+            \caption{$L$ (N)}
             \label{fig:lift_evolution}
         \end{subfigure}
-        \begin{subfigure}{0.48\textwidth}
+        \begin{subfigure}{0.32\textwidth}
             \begin{tikzpicture}
                 \begin{axis}[
                     xlabel={time (s)},
-                    ylabel={Drag (N)},
+                    % ylabel={Drag (N)},
                     ymajorgrids=true,xmajorgrids=true,
                     legend pos=south east,
                     width=0.98\textwidth,
                     axis background/.style={fill=\backgroundcolor}
                     ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/convergence/force_after_iterative};
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/iterativeProcess/forces_u1.7_9.8};
                 \end{axis}
             \end{tikzpicture}
-            \caption{Drag evolution.}
+            \caption{$D$ (N)}
             \label{fig:drag_evolution}
         \end{subfigure}
-        
-        \begin{subfigure}{0.48\textwidth}
+        \begin{subfigure}{0.32\textwidth}
             \begin{tikzpicture}
                 \begin{axis}[
                     xlabel={time (s)},
-                    ylabel={z (m)},
+                    % ylabel={z (m)},
                     ymajorgrids=true,xmajorgrids=true,
                     legend pos=south east,
                     width=0.98\textwidth,
                     axis background/.style={fill=\backgroundcolor}
                     ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/rigidBodyMotionDisplacement/tq_after_iterative};
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/iterativeProcess/tq_u1.7_9.8};
                 \end{axis}
             \end{tikzpicture}
-            \caption{Vertical displacement evolution.}
+            \caption{$z$ (m)}
             \label{fig:drag_evolution}
         \end{subfigure}
-        
-        % \begin{tikzpicture}
-        %     \begin{axis}[
-        %         hide axis,
-        %         xmin=0, xmax=1, ymin=0, ymax=1,
-        %         legend columns=-1, % -1 pour aligner horizontalement, 1 pour aligner verticalement
-        %         legend entries={M1, M2, M1 no foils},
-        %         width=0.25\textwidth
-        %         ]
-        %         \addlegendimage{ultra thick, mark=*, \firstcolor}
-        %         \addlegendimage{ultra thick, mark=*, \secondcolor}
-        %         \addlegendimage{ultra thick, mark=*, \thirdcolor}
-        %     \end{axis}
-        % \end{tikzpicture}
-
-        \caption{Convergence of the metrics with the iterations.}
+        \caption{Last computation of the iterative process, evolution of forces and vertical displacement.}
         \label{fig:meshConvergence}
     \end{figure}
+
+
+    \clearpage
+    Same thing in Fig. \ref{fig:iterative_process_2}, with an initial condition $\mathbf{u_b}^0 = 7$ m/s and a wind $\mathbf{u_w} = \langle -1.73, 9.85\rangle$ m/s (15 knots, 100 deg), without foils or keel, on mesh M1 (M0 and M1 without foils are the same). The relaxation factor $r_n$ varies linearly from 0.2 to 0.8. The process converged in 2h (3 iterations). 
+
+    \begin{figure}[ht!]
+        \centering
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={Iteration},
+                    ylabel={$\mathbf{u}_b$ (m/s)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{1})] {curves/iterativeProcess/iterative_process_result_um1.7_9.8};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Velocity}
+        \end{subfigure}
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={Iteration},
+                    ylabel={Forces (N)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{2})] {curves/iterativeProcess/iterative_process_result_um1.7_9.8};
+                    \addplot +[mark=None, style=ultra thick, color=\secondcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{3})] {curves/iterativeProcess/iterative_process_result_um1.7_9.8};
+                    \legend{$T$, $-D$}
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Forces}
+        \end{subfigure}
+            
+        \caption{Iterative determination of the velocity inlet BC for a wind speed of $\langle -10, 0\rangle$ m/s (15 knots, pure downwind).}
+        \label{fig:iterative_process_2}
+    \end{figure}
+
+    The forces for the last iteration are the following : 
+    \begin{figure}[ht!]
+        \centering
+        \begin{subfigure}{0.32\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    % ylabel={Lift (N)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/iterativeProcess/forces_um1.7_9.8};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{$L$ (N)}
+            \label{fig:lift_evolution}
+        \end{subfigure}
+        \begin{subfigure}{0.32\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/iterativeProcess/forces_um1.7_9.8};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{$D$ (N)}
+            \label{fig:drag_evolution}
+        \end{subfigure}
+        \begin{subfigure}{0.32\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/iterativeProcess/tq_um1.7_9.8};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{$z$ (m)}
+            \label{fig:drag_evolution}
+        \end{subfigure}
+        \caption{Last computation of the iterative process, evolution of forces and vertical displacement.}
+        \label{fig:meshConvergence}
+    \end{figure}
+
+
+\clearpage
+    Same, $\mathbf{u_b}$ with an initial condition $\mathbf{u_b}^0 = 7.4$ m/s and a wind $\mathbf{u_w} = \langle 1.73, 9.85\rangle$ m/s, exporting from 30 to 35 ftt. 
+
+    \begin{figure}[ht!]
+        \centering
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={Iteration},
+                    ylabel={$\mathbf{u}_b$ (m/s)},
+                    % xmin=0, xmax=10,
+                    % ymin=0, ymax=6,
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{1})] {curves/iterativeProcess/iterative_process_result_u1.7_9.8_v2};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Velocity}
+        \end{subfigure}
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={Iteration},
+                    ylabel={Forces (N)},
+                    % xmin=0, xmax=10,
+                    % ymin=0, ymax=6,
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{2})] {curves/iterativeProcess/iterative_process_result_u1.7_9.8_v2};
+                    \addplot +[mark=None, style=ultra thick, color=\secondcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{3})] {curves/iterativeProcess/iterative_process_result_u1.7_9.8_v2};
+                    \legend{$T$, $-D$}
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Forces}
+        \end{subfigure}
+            
+        \caption{Iterative determination of the velocity inlet BC for a wind speed of $\langle -10, 0\rangle$ m/s (15 knots, pure downwind).}
+        \label{fig:iterative_process}
+    \end{figure}
+
+    The forces for the last iteration are the following : 
+    \begin{figure}[ht!]
+        \centering
+        \begin{subfigure}{0.32\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    % ylabel={Lift (N)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/iterativeProcess/forces_u1.7_9.8_v2};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{$L$ (N)}
+            \label{fig:lift_evolution}
+        \end{subfigure}
+        \begin{subfigure}{0.32\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    % ylabel={Drag (N)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/iterativeProcess/forces_u1.7_9.8_v2};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{$D$ (N)}
+            \label{fig:drag_evolution}
+        \end{subfigure}
+        \begin{subfigure}{0.32\textwidth}
+            \begin{tikzpicture}
+                \begin{axis}[
+                    xlabel={time (s)},
+                    % ylabel={z (m)},
+                    ymajorgrids=true,xmajorgrids=true,
+                    legend pos=south east,
+                    width=0.98\textwidth,
+                    axis background/.style={fill=\backgroundcolor}
+                    ]
+                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/iterativeProcess/tq_u1.7_9.8_v2};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{$z$ (m)}
+            \label{fig:drag_evolution}
+        \end{subfigure}
+        \caption{Last computation of the iterative process, evolution of forces and vertical displacement.}
+        \label{fig:meshConvergence}
+    \end{figure}
+
+
+\clearpage 
+\section{Long run}
+
+The following Figures show the evolution of the metrics during a long run (150 ftt), with a damping of 1000. The system is clearly in an underdamped regime.
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                % ylabel={Lift (N)},
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.98\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/force.dat};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{$L$ (N)}
+        \label{fig:lift_evolution}
+    \end{subfigure}
+    \begin{subfigure}{0.32\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                % ylabel={Drag (N)},
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.98\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/longRun/force.dat};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{$D$ (N)}
+        \label{fig:drag_evolution}
+    \end{subfigure}
+    \begin{subfigure}{0.32\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                % ylabel={z (m)},
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.98\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/tq};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{$z$ (m)}
+        \label{fig:drag_evolution}
+    \end{subfigure}
+    \caption{Vertical translation damper $\gamma = 1000$.}
+    \label{fig:meshConvergence}
+\end{figure}
+
+Same below, xith u = 10, with a damping of 1000. The system is clearly in an underdamped regime.
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                % ylabel={Lift (N)},
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.98\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/force_10.dat};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{$L$ (N)}
+        \label{fig:lift_evolution}
+    \end{subfigure}
+    \begin{subfigure}{0.32\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                % ylabel={Drag (N)},
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.98\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/longRun/force_10.dat};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{$D$ (N)}
+        \label{fig:drag_evolution}
+    \end{subfigure}
+    \begin{subfigure}{0.32\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={time (s)},
+                % ylabel={z (m)},
+                ymajorgrids=true,xmajorgrids=true,
+                legend pos=south east,
+                width=0.98\textwidth,
+                axis background/.style={fill=\backgroundcolor}
+                ]
+                \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/tq_10};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{$z$ (m)}
+        \label{fig:drag_evolution}
+    \end{subfigure}
+    \caption{Vertical translation damper $\gamma = 15000$.}
+    \label{fig:meshConvergence}
+\end{figure}
