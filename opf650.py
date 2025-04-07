@@ -207,27 +207,29 @@ def estimate_initial_velocity(u_wind, verbose=True, plot_res=True):
     relax_factor_min = 0.2
     relax_factors = np.linspace(0,1,max_iter)*(relax_factor_max-relax_factor_min)+relax_factor_min
     for i_iter in np.arange(max_iter):
-        print(f'Iteration {i_iter} ; u = {u_boat[i_iter]}')
-        u_app = compute_app_speed(np.array([-u_boat[i_iter], 0]), u_wind)
+        if verbose:
+            print(f'Iteration {i_iter} ; u = {u_boat[i_iter]}')
+        u_app = compute_app_speed(np.array([-u_boat[i_iter], 0]), u_wind, verbose=False)
         D = estimate_drag(u_boat[i_iter])
         D_all[i_iter] = D
         wind_force = compute_wind_force(u_app, verbose=False, plot_res=False)
         T = wind_force[0]
         T_all[i_iter] = T
-        print(f'---> u_app = {u_app} ; ')
-        print(f'---> Wind thrust T = {T} ; water drad D = {D}')
+        if verbose:
+            print(f'---> u_app = {u_app} ; ')
+            print(f'---> Wind thrust T = {T} ; water drad D = {D}')
         relax_factor = relax_factors[i_iter]
         u_boat[i_iter+1] = relax_factor*u_boat[i_iter]*-T/D+(1-relax_factor)*u_boat[i_iter]
         if np.isnan(u_boat[i_iter+1]):
             print(f'NaN encountered. Exiting')
             print(f"u : {u_boat}")
         if (abs(u_boat[i_iter+1]-u_boat[i_iter]))/u_boat[i_iter] < threshold:
-            print('---> Convergence reached. Exiting the loop')
+            print(f'---> Convergence reached. Exiting the loop with u = {u_boat[i_iter+1]}')
             converged = True
             break
-    u_boat = u_boat[0:i_iter+1]
-    D_all = D_all[0:i_iter+1]
-    T_all = T_all[0:i_iter+1]
+    u_boat = u_boat[0:i_iter+2]
+    D_all = D_all[0:i_iter+2]
+    T_all = T_all[0:i_iter+2]
     if plot_res:
         fig, ax=plt.subplots(1,2, dpi=150)
         ax[0].plot(np.arange(len(u_boat)), u_boat)
@@ -240,6 +242,6 @@ def estimate_initial_velocity(u_wind, verbose=True, plot_res=True):
         ax[1].set_ylabel('Forces')
         ax[1].set_xlabel('Iteration')
         plt.show()
-    return u_boat[-1]
+    return u_boat[i_iter+1]
 
-estimate_initial_velocity(u_wind)
+# estimate_initial_velocity(u_wind)
