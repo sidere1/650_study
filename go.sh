@@ -27,18 +27,19 @@ cp -r 650_basecase 650_m1
 ##########################################
 # m0 ##################################### 
 ##########################################
-echo "Meshing M0"
+echo "Computing initial solution"
+# echo "Meshing M0"
 cd 650_m0
 cp system/controlDict.m0 system/controlDict
 # meshing 
 blockMesh -dict system/blockMeshDict.m0 >> $logfile 
-snappyHexMesh -overwrite -dict system/snappyHexMeshDict.m0 >> $logfile
+snappyHexMesh -overwrite -dict system/snappyHexMeshDict.56k_justhull >> $logfile
 checkMesh >> $logfile
 renumberMesh -overwrite >> $logfile
 rm constant/dynamicMeshDict*
 
 # running
-echo "running M0"
+# echo "running M0"
 setFields >> $logfile
 if $parallel
 then 
@@ -58,18 +59,19 @@ paste postProcessing/rigidBodyMotionDisplacement/t postProcessing/rigidBodyMotio
 # m1 ##################################### 
 ##########################################
 cd ../650_m1
-echo "Meshing M1"
+echo "Performing 6DOF computation"
+# echo "Meshing M1"
 cp system/controlDict.m1 system/controlDict
 
 # meshing 
-blockMesh -dict system/blockMeshDict.m1 >> $logfile
+blockMesh -dict system/blockMeshDict.m0 >> $logfile
 surfaceFeatureExtract >> $logfile
-snappyHexMesh -overwrite -dict system/snappyHexMeshDict.100k >> $logfile
+snappyHexMesh -overwrite -dict system/snappyHexMeshDict.56k_justhull >> $logfile
 checkMesh >> $logfile
 renumberMesh -overwrite >> $logfile
 
 # running
-echo "running M1"
+# echo "running M1"
 setFields >> $logfile
 mapFields -sourceTime latestTime ../650_m0 >> $logfile 
 mv 0/pointDisplacement.unmapped 0/pointDisplacement
@@ -88,4 +90,16 @@ cat $logfile | grep "Time = " | grep -v Execution | cut -d " " -f 3 | tail -n +5
 cat postProcessing/rigidBodyMotionDisplacement/t_temp | tail -n `cat postProcessing/rigidBodyMotionDisplacement/q | wc -l` > postProcessing/rigidBodyMotionDisplacement/t
 paste postProcessing/rigidBodyMotionDisplacement/t postProcessing/rigidBodyMotionDisplacement/q > postProcessing/rigidBodyMotionDisplacement/tq
 cat $logfile | grep max | tail >> ../maxes
+
+
+src_file=$logfile
+dest_dir="logs"
+base_name="log_iter_"
+i=0
+dest_file="$dest_dir/${base_name}${i}${ext}"
+while [ -e "$dest_file" ]; do
+    ((i++))
+    dest_file="$dest_dir/${base_name}${i}${ext}"
+done
+cp "$src_file" "$dest_file"
 

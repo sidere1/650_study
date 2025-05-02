@@ -9,16 +9,17 @@ import time
 
 # physical data
 
-# sail_angle = 70 # in degrees. I guess around 10 au près, 60 au portant ?
+u_wind = np.array([7.0710 , 7.0710]) # 45.0 	 max upwind
+# u_wind = np.array([5.5557 , 8.3146]) # 56.25 	 
+# u_wind = np.array([3.8268 , 9.2387]) # 67.5 	 
+# u_wind = np.array([1.9509 , 9.8078]) # 78.75 	 
+# u_wind = np.array([0      , 10.0  ]) # 90.0 	 
+# u_wind = np.array([-1.950 , 9.8078]) # 101.25 	 
+# u_wind = np.array([-3.826 , 9.2387]) # 112.5 	 
+# u_wind = np.array([-5.555 , 8.3146]) # 123.75 	 
+# u_wind = np.array([-7.071 , 7.0710]) # 135.0 	 
+# u_wind = np.array([-10 , 0]) # 180    pure downwind
 
-# sail_angle = 45 # in degrees. I guess around 10 au près, 60 au portant ?
-
-u_wind = np.array([3, 6]) # 1 noeud = 0.514 m/s, 15 noeud~7m/s
-u_wind = np.array([-10, 0]) # pure upwind, 180
-u_wind = np.array([-1.736481776669303, 9.84807753012208]) # best upwind, 100
-u_wind = np.array([0, 10]) # 90
-# u_wind = np.array([1.736481776669303, 9.84807753012208]) # 80
-# u_wind = np.array([5, 8.660254037844386]) # 60
 boat_length=6.5
 
 # parameters
@@ -34,9 +35,21 @@ relax_factor_min = 0.2
 relax_factor_max = 0.6
 M0_ftt_length = 15 # initial run duration, to get an initial condition
 M1_ftt_length = 75 # run full duration
-M1_discarded_ftt_length = 25 # run discarded initialisation duration
+M1_discarded_ftt_length = 50 # run discarded initialisation duration
+M0_ftt_length = 5 # initial run duration, to get an initial condition
+M1_ftt_length = 25 # run full duration
+M1_discarded_ftt_length = 15 # run discarded initialisation duration
 
 # processing
+
+for filename in os.listdir("logs"):
+    file_path = os.path.join("logs", filename)
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    except Exception as e:
+        print(f'Failed to delete {file_path}. Reason: {e}')
+
 
 converged = False
 u_boat = np.zeros(max_iter+1)
@@ -115,11 +128,24 @@ plt.show()
 # Sp = 0.9
 # Spp = 8.64
 
-# u = 5.037
-# Dp = 1327 # col 5 
-# Dpp = 403 # col 8
+# u = 5.12
+# Dp = 1460 # col 5 
+# Dpp = 375 # col 8
 
 # Cdp = 2*Dp/(rho * u**2 * Sp)
 # Cdpp = 2*Dpp/(rho * u**2 * Spp)
 
 # print(f'u = {u}, Cdp = {Cdp}, Cdpp = {Cdpp}')
+
+
+# thetas = np.linspace(30,150, 10)*np.pi/180
+# us = np.zeros_like(thetas)
+# k = 0
+# for theta in thetas:
+#     u_wind = np.array([np.cos(theta), np.sin(theta)])*10
+#     us[k] = estimate_initial_velocity(u_wind, verbose=False, plot_res=False)
+#     # print(f'theta = {theta}, u = {u}')
+#     k+=1
+
+# for k in np.arange(len(thetas)):
+#     print(f'({thetas[k]*180/np.pi},{us[k]})')

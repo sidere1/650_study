@@ -14,16 +14,15 @@
 
 \usepackage{pgfplots} 
 \pgfplotsset{width=10cm,compat=1.9} 
-% \usepgfplotslibrary{external} % pour exporter séparément les figures et les importer après dans le doc. Compilation plus rapide
-% \tikzexternalize[prefix=tikz/]
+\usepgfplotslibrary{external} % pour exporter séparément les figures et les importer après dans le doc. Compilation plus rapide
+\tikzexternalize[prefix=tikz/]
 \synctex=1 
-\usetikzlibrary{calc}
-\usetikzlibrary{patterns}
+\usetikzlibrary{calc,patterns}
 \usepackage[labelformat=simple]{subcaption}
 \renewcommand\thesubfigure{(\alph{subfigure})}
 
 
-\usepgfplotslibrary{colorbrewer}
+\usepgfplotslibrary{colorbrewer, polar}
 \usetikzlibrary{pgfplots.statistics, pgfplots.colorbrewer} % provides \pgfplotstabletranspose
 \usepackage{colortbl}
 

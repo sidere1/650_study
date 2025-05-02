@@ -77,7 +77,8 @@
             \hline  
             underdamped 150 & 6.8 & 1700 & 600 & 0.08941 & 0.00328 \\
             critical 100 & 10 & 2700 & 900 & 0.142 & 0.00493 \\
-            best upwind 5.037 & 1327 & 403 & 0.11622900163 & 0.003676 \\  
+            best upwind & 5.037 & 1327 & 403 & 0.116 & 0.003676 \\  
+            100 deg & 5.12 & 1460 & 375 & 0.1238 & 0.003311 \\
         \end{tabular}
         \caption{Numerical estimation of the drag coefficients on the hull}
         \label{tab:dragCoeffHull}
@@ -554,113 +555,48 @@
 
 \clearpage 
 \section{polar}
+    % \begin{table}[ht!]
+    %     \centering\begin{tabular}{c|c|c|c}
+    %         Run & $\theta$ & $\mathbf{u}_w$ & $\mathbf{u}_b$ \\
+    %         \hline
+    %         A & 100 & $\langle-1.73, 9\rangle$ & 7.5 \\ 
+    %         A & 80 & $\langle1.73, 9\rangle$ & 6.5 \\ 
+    %         A & 90 & $\langle-1.73, 9\rangle$ & 5.12054600e+00 \\ 
+    %     \end{tabular}
+    %     \caption{Converged velocities.}
+    %     \label{tab:converged_velocities}
+    % \end{table}
+    \begin{table}[ht!]
+        \centering\begin{tabular}{c|c|c|c}
+            Run & $\theta$ & $\mathbf{u}_w$ & $\mathbf{u}_b$ \\
+            \hline
+            % A & 100 & $\langle-1.73, 9\rangle$ & 7.5 \\ 
+            45.0 	& 	1.570 	& 	$\langle 7.0710 , 7.0710 \rangle$ & 0 \\
+            56.25 	& 	1.963 	& 	$\langle 5.5557 , 8.3146 \rangle$ & 0 \\
+            67.5 	& 	2.356 	& 	$\langle 3.8268 , 9.2387 \rangle$ & 0 \\
+            78.75 	& 	2.748 	& 	$\langle 1.9509 , 9.8078 \rangle$ & 0 \\
+            90.0 	& 	3.141 	& 	$\langle 0      , 10.0   \rangle$ & 0 \\
+            101.25 	& 	3.534 	& 	$\langle -1.950 , 9.8078 \rangle$ & 0 \\
+            112.5 	& 	3.926 	& 	$\langle -3.826 , 9.2387 \rangle$ & 0 \\
+            123.75 	& 	4.319 	& 	$\langle -5.555 , 8.3146 \rangle$ & 0 \\
+            135.0 	& 	4.712 	& 	$\langle -7.071 , 7.0710 \rangle$ & 0 
+        \end{tabular}
+        \caption{Converged velocities.}
+        \label{tab:converged_velocities}
+    \end{table}
 
-    The following results have been obtained with 80 ftt, with a damping of 5000. The system is clearly in an underdamped regime.
-    \begin{figure}[ht!]
-        \centering
-        \begin{subfigure}{0.32\textwidth}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    xlabel={time (s)},
-                    % ylabel={Lift (N)},
-                    ymajorgrids=true,xmajorgrids=true,
-                    legend pos=south east,
-                    width=0.98\textwidth,
-                    axis background/.style={fill=\backgroundcolor}
-                    ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/force.dat};
-                \end{axis}
-            \end{tikzpicture}
-            \caption{$L$ (N)}
-            \label{fig:lift_evolution}
-        \end{subfigure}
-        \begin{subfigure}{0.32\textwidth}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    xlabel={time (s)},
-                    % ylabel={Drag (N)},
-                    ymajorgrids=true,xmajorgrids=true,
-                    legend pos=south east,
-                    width=0.98\textwidth,
-                    axis background/.style={fill=\backgroundcolor}
-                    ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/longRun/force.dat};
-                \end{axis}
-            \end{tikzpicture}
-            \caption{$D$ (N)}
-            \label{fig:drag_evolution}
-        \end{subfigure}
-        \begin{subfigure}{0.32\textwidth}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    xlabel={time (s)},
-                    % ylabel={z (m)},
-                    ymajorgrids=true,xmajorgrids=true,
-                    legend pos=south east,
-                    width=0.98\textwidth,
-                    axis background/.style={fill=\backgroundcolor}
-                    ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/tq};
-                \end{axis}
-            \end{tikzpicture}
-            \caption{$z$ (m)}
-            \label{fig:drag_evolution}
-        \end{subfigure}
-        \caption{Vertical translation damper $\gamma = 1000$.}
-        \label{fig:meshConvergence}
-    \end{figure}
-
-    Same below, xith u = 10, with a damping of 1000. The system is clearly in an underdamped regime.
-    \begin{figure}[ht!]
-        \centering
-        \begin{subfigure}{0.32\textwidth}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    xlabel={time (s)},
-                    % ylabel={Lift (N)},
-                    ymajorgrids=true,xmajorgrids=true,
-                    legend pos=south east,
-                    width=0.98\textwidth,
-                    axis background/.style={fill=\backgroundcolor}
-                    ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/force_10.dat};
-                \end{axis}
-            \end{tikzpicture}
-            \caption{$L$ (N)}
-            \label{fig:lift_evolution}
-        \end{subfigure}
-        \begin{subfigure}{0.32\textwidth}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    xlabel={time (s)},
-                    % ylabel={Drag (N)},
-                    ymajorgrids=true,xmajorgrids=true,
-                    legend pos=south east,
-                    width=0.98\textwidth,
-                    axis background/.style={fill=\backgroundcolor}
-                    ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(-\thisrowno{1})] {curves/longRun/force_10.dat};
-                \end{axis}
-            \end{tikzpicture}
-            \caption{$D$ (N)}
-            \label{fig:drag_evolution}
-        \end{subfigure}
-        \begin{subfigure}{0.32\textwidth}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    xlabel={time (s)},
-                    % ylabel={z (m)},
-                    ymajorgrids=true,xmajorgrids=true,
-                    legend pos=south east,
-                    width=0.98\textwidth,
-                    axis background/.style={fill=\backgroundcolor}
-                    ]
-                    \addplot +[mark=None, style=ultra thick, color=\firstcolor, style=ultra thick, style=solid] table[x expr=(\thisrowno{0}), y expr=(\thisrowno{3})] {curves/longRun/tq_10};
-                \end{axis}
-            \end{tikzpicture}
-            \caption{$z$ (m)}
-            \label{fig:drag_evolution}
-        \end{subfigure}
-        \caption{Vertical translation damper $\gamma = 15000$.}
-        \label{fig:meshConvergence}
-    \end{figure}
+    \begin{tikzpicture}
+        \begin{polaraxis}[
+            xtick={0,90,180,270},
+            % title=6.50 polar,
+        ]
+            \addplot coordinates {(80,6.5) (90,5.12) (100,5.55)};
+                \addlegendentry{Without foil}
+         
+            \addplot coordinates {(29.999999999999996,4.391297854079807) (43.333333333333336,5.263754557993699) (56.66666666666667,6.082799228273682) (70.0,6.271348050904755) (83.33333333333333,6.122130522059601) (96.66666666666667,5.822454691970455) (110.0,5.2895180962352315) (123.33333333333334,4.679395729473274) (136.66666666666669,3.6921024321967373) (150.00000000000003,2.9427124750660347)};
+                \addlegendentry{Fast estimate}
+            
+            % \addplot coordinates {(180,0.5) (0,0)};
+            %     \addlegendentry{With foil}
+            \end{polaraxis}
+    \end{tikzpicture} 
