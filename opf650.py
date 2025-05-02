@@ -93,7 +93,7 @@ def compute_wind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False)
     if verbose:
         print(f'---> Upwind mode, u_app = {u_app}, u*sail = {u}, F = {F_upwind}')
     # pas upwind hypothesis
-    bullshit_coeff = 0.5
+    bullshit_coeff = 0.9 # https://fr.wikipedia.org/wiki/Effort_sur_une_voile
     sail = np.array([-np.sin(sail_angle), np.cos(sail_angle)])
     u = u_app@sail.T
     stagnation_pressure = 0.5*rho*u**2*bullshit_coeff
