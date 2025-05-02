@@ -27,7 +27,7 @@ cp -r 650_basecase 650_m1
 ##########################################
 # m0 ##################################### 
 ##########################################
-echo "Computing initial solution"
+echo "Performing initial solution computation"
 # echo "Meshing M0"
 cd 650_m0
 cp system/controlDict.m0 system/controlDict
@@ -84,6 +84,7 @@ else
    interFoam >> $logfile
 fi
 
+
 mkdir postProcessing/rigidBodyMotionDisplacement/
 cat $logfile | grep "Centre of rotation" | cut -d " " -f 8-10 | sed 's/(//g' | sed 's/)//g' >> postProcessing/rigidBodyMotionDisplacement/q
 cat $logfile | grep "Time = " | grep -v Execution | cut -d " " -f 3 | tail -n +5 > postProcessing/rigidBodyMotionDisplacement/t_temp
@@ -91,7 +92,7 @@ cat postProcessing/rigidBodyMotionDisplacement/t_temp | tail -n `cat postProcess
 paste postProcessing/rigidBodyMotionDisplacement/t postProcessing/rigidBodyMotionDisplacement/q > postProcessing/rigidBodyMotionDisplacement/tq
 cat $logfile | grep max | tail >> ../maxes
 
-
+cd ..
 src_file=$logfile
 dest_dir="logs"
 base_name="log_iter_"
@@ -102,4 +103,6 @@ while [ -e "$dest_file" ]; do
     dest_file="$dest_dir/${base_name}${i}${ext}"
 done
 cp "$src_file" "$dest_file"
+echo "copying log into $dest_file"
+
 
