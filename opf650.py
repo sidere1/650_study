@@ -23,7 +23,7 @@ def compute_average_drag(filename, skip=0, plot_res=False):
 
 def estimate_drag(u):
     rho = 1000
-    Sp = 0.9 # S' = surface projetée dans un plan normal à x
+    Sp = 0.5 # S' = surface projetée dans un plan normal à x
     Spp = 8.64 # S'' = surface mouillée, calculée avec integrate alpha.water sur la coque dans paraview
     Cdp = 0.09
     Dp = 1/2 * rho * u**2 * Sp * Cdp 
@@ -56,7 +56,7 @@ def lauch_computation(opf_script):
     return True
 
 
-def compute_app_speed(u_boat, u_wind, verbose=True):
+def compute_app_speed(u_boat, u_wind, verbose=False):
     u_app = u_wind-u_boat
     if verbose:
         print(f"Velocity triangle, u_a={u_app}, u_w={u_wind}, u_b={u_boat}")
@@ -69,7 +69,52 @@ def compute_app_speed(u_boat, u_wind, verbose=True):
     # en downwind, c'est le drag qui pousse. Pour savoir dans quelle config on est, on calcule les deux et on regarde la plus grande.
 
 
-def compute_wind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False):
+def compute_upwind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False):
+    # sail angle est en degre 
+    # upwind hypothesis
+    
+    rho=1.2
+    S = 34 # en m2
+    # camber = 20
+    # sail_angle = sail_angle + camber
+    sail_angle *= np.pi/180
+    
+    # camber *= np.pi/180
+    sail = np.array([np.cos(sail_angle), np.sin(sail_angle)])
+    rotation_mat = np.array([[np.cos(sail_angle), -np.sin(sail_angle)], [np.sin(sail_angle), np.cos(sail_angle)]])
+    
+    Cl = 0.8   # réglage au près - upwind
+    Cd = 0.02  # réglage au près - upwind
+    u = u_app@sail.T
+    
+    wind_norm = np.linalg.norm(u_app)
+    wind_angle = np.arccos(u_app[0]/wind_norm)
+    tot_angle = np.pi-wind_angle + sail_angle 
+    if tot_angle > np.pi or tot_angle < np.pi/2:
+        u = 0
+        # print('setting to 0 wrong angle')
+        
+    Fl_upwind = 0.5*rho*u**2*S*Cl
+    Fd_upwind = 0.5*rho*u**2*S*Cd
+    # print(f'Fl = {Fl_upwind}, Fd = {Fd_upwind}')
+    # if u_app[0] < 0:
+    #     Fd_upwind*=-1
+    # if u_app[1] < 0:
+    #     Fl_upwind*=-1
+    F_upwind = rotation_mat@np.array([Fd_upwind, Fl_upwind]).T
+    F_upwind_pas_rot = np.array([Fd_upwind, Fl_upwind])
+    
+    if F_upwind[0] > 0:
+        F_upwind[0] = 0
+    
+    if verbose:
+        print(f'---> Upwind mode, u_app = {u_app}, u*sail = {u}, F = {F_upwind}')
+    
+    return F_upwind
+
+def compute_downwind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False):
+    # sail angle est en degre 
+    # pas upwind hypothesis
     rho=1.2
     S = 34 # en m2
     camber = 20
@@ -78,33 +123,45 @@ def compute_wind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False)
     camber *= np.pi/180
     sail = np.array([np.cos(sail_angle), np.sin(sail_angle)])
     rotation_mat = np.array([[np.cos(sail_angle), -np.sin(sail_angle)], [np.sin(sail_angle), np.cos(sail_angle)]])
-    # if verbose:
-    #     print(f"rotation mat = {rotation_mat}")
-    # upwind hypothesis
-    Cl = 0.8   # réglage au près - upwind
-    Cd = 0.02  # réglage au près - upwind
-    u = u_app@sail.T
-    if u < 0:
-        u = 0
-    Fl_upwind = 0.5*rho*u**2*S*Cl
-    Fd_upwind = 0.5*rho*u**2*S*Cd
-    F_upwind = rotation_mat@np.array([Fd_upwind, Fl_upwind]).T
-    F_upwind_pas_rot = np.array([Fd_upwind, Fl_upwind])
-    if verbose:
-        print(f'---> Upwind mode, u_app = {u_app}, u*sail = {u}, F = {F_upwind}')
-    # pas upwind hypothesis
-    bullshit_coeff = 0.9 # https://fr.wikipedia.org/wiki/Effort_sur_une_voile
+    
+    bullshit_coeff = 0.9 # https://fr.wikipedia.org/wiki/Effort_sur_une_voile 
     sail = np.array([-np.sin(sail_angle), np.cos(sail_angle)])
     u = u_app@sail.T
+    
+    wind_norm = np.linalg.norm(u_app)
+    wind_angle = np.arccos(u_app[0]/wind_norm)
+    tot_angle = np.pi - wind_angle + sail_angle 
+    # print(f"tot angle = {tot_angle*180/np.pi}, sail = {sail_angle*180/np.pi}, wind = {wind_angle*180/np.pi}")
+    if tot_angle > np.pi or tot_angle < 0:
+        u = 0
+        
     stagnation_pressure = 0.5*rho*u**2*bullshit_coeff
-    Fl_downwind = 0
+    # Fl_downwind = 0
     Fd_downwind = S * stagnation_pressure
-    F_downwind = rotation_mat@np.array([Fl_downwind, Fd_downwind]).T
+    # if u_app[0] > 0:
+    #     Fd_downwind*=-1
+    F_downwind = rotation_mat@np.array([0, Fd_downwind]).T
+    
+    if F_downwind[0] > 0:
+        F_downwind[0] = 0
+        
     if verbose:
         print(f'---> Downwind mode, u_app = {u_app}, u*sail = {u}, F = {F_downwind}')
+    
+    return F_downwind
+
+def compute_wind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False, mode="both"):
+    # mode : "both", "upwind", "downwind"
+    F_upwind = compute_upwind_force_at_angle(u_app, sail_angle, verbose, plot_res)
+    F_downwind = compute_downwind_force_at_angle(u_app, sail_angle, verbose, plot_res)
+   
     F = F_upwind
-    if abs(F_downwind[0]) > abs(F_upwind[0]):
+    if mode == "downwind":
         F = F_downwind
+    if mode == "both":
+        if abs(F_downwind[0]) > abs(F_upwind[0]):
+            F = F_downwind
+            # print(f"Fdownwind = {F_downwind} ; F_upwind = {F_upwind}")
     if verbose:
         print(f"F = {F}")
     # if F[0] > 0:
@@ -131,7 +188,7 @@ def compute_wind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False)
         ax.arrow(-0.75, -0.1, u_app[0], u_app[1], head_width=0.05, color='black')
         # Forces
         ax.arrow(0, 0, F_upwind[0] * norm_fact, F_upwind[1] * norm_fact, head_width=0.03, color='red', linestyle='solid', label='upwind mode')
-        ax.arrow(0, 0, F_upwind_pas_rot[0] * norm_fact, F_upwind_pas_rot[1] * norm_fact, head_width=0.03, color='red', linestyle='dotted', label='upwind mode')
+        # ax.arrow(0, 0, F_upwind_pas_rot[0] * norm_fact, F_upwind_pas_rot[1] * norm_fact, head_width=0.03, color='red', linestyle='dotted', label='upwind mode')
         ax.arrow(0, 0, F_downwind[0] * norm_fact, F_downwind[1] * norm_fact, head_width=0.03, color='blue', linestyle='solid', label='downwind mode')
         ax.legend()
         ax.set_xlabel("x ")
@@ -141,12 +198,16 @@ def compute_wind_force_at_angle(u_app, sail_angle, verbose=True, plot_res=False)
         plt.show()
     return F
 
-def compute_wind_force(u_app, verbose=True, plot_res=False):
+def compute_wind_force(u_app, verbose=True, plot_res=False, mode="both"):
+    # mode : "both", "upwind", "downwind"
     F_max = 0
+    sail_angle_max = 0
+    F_max_vect = np.zeros(2)
     for sail_angle in range(0, 90, 1):
-        F = compute_wind_force_at_angle(u_app, sail_angle, verbose=False)
-        if np.linalg.norm(F) > F_max:
-            F_max = np.linalg.norm(F)
+        F = compute_wind_force_at_angle(u_app, sail_angle, verbose=False, mode=mode)
+        # if np.linalg.norm(F) > F_max:
+        if abs(F[0]) > F_max:
+            F_max = abs(F[0])
             sail_angle_max = sail_angle
             F_max_vect = F
     if verbose:
@@ -195,25 +256,29 @@ def export_latex_curves(filename, matrix, description, verbose=True):
             dataFile.write(' '.join([str(a) for a in row]) + '\n')
 
 
-def estimate_initial_velocity(u_wind, verbose=True, plot_res=True):
+def estimate_initial_velocity(u_wind, verbose=True, plot_res=True, mode="both"):
+    # mode : "both", "upwind", "downwind"
     converged = False
     threshold = 0.01
     max_iter = 100
     u_boat = np.zeros(max_iter+1)
     T_all = np.zeros(max_iter+1)
     D_all = np.zeros(max_iter+1)
-    u_boat[0] = 1
+    u_boat[0] = 1 # norm of u 
     relax_factor_max = 0.98
     relax_factor_min = 0.2
     relax_factors = np.linspace(0,1,max_iter)*(relax_factor_max-relax_factor_min)+relax_factor_min
     for i_iter in np.arange(max_iter):
         if verbose:
-            print(f'Iteration {i_iter} ; u = {u_boat[i_iter]}')
+            print(f'Iteration {i_iter} ; u = {[-u_boat[i_iter], 0]}')
         u_app = compute_app_speed(np.array([-u_boat[i_iter], 0]), u_wind, verbose=False)
         D = estimate_drag(u_boat[i_iter])
         D_all[i_iter] = D
-        wind_force = compute_wind_force(u_app, verbose=False, plot_res=False)
+        wind_force = compute_wind_force(u_app, verbose=False, plot_res=False, mode=mode)
         T = wind_force[0]
+        # if T > 0: # this is now enforced in compute_wind_force
+        #     T = 0
+            # print('T is set to 0')
         T_all[i_iter] = T
         if verbose:
             print(f'---> u_app = {u_app} ; ')
@@ -242,6 +307,7 @@ def estimate_initial_velocity(u_wind, verbose=True, plot_res=True):
         ax[1].set_ylabel('Forces')
         ax[1].set_xlabel('Iteration')
         plt.show()
+    if not converged:
+        return np.mean(u_boat)
     return u_boat[i_iter+1]
 
-# estimate_initial_velocity(u_wind)
